@@ -26,6 +26,14 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 The API will be available at `http://localhost:8000`.
 
+## Optional Environment Variables
+
+Genderize allows limited free requests without an API key, but hosted platforms can share IP addresses and hit that free limit. If your deployed app returns `Failed to reach gender prediction service`, create a Genderize API key and set this environment variable on your host:
+
+```text
+GENDERIZE_API_KEY=<your-genderize-api-key>
+```
+
 ## Endpoint
 
 `GET /api/classify?name=<name>`
@@ -88,10 +96,36 @@ sample_size >= 100
 python -m pytest tests -v
 ```
 
+## Deploy To Vercel
+
+This project includes `app/index.py` as the Vercel FastAPI entrypoint.
+
+On Vercel:
+
+```text
+Framework Preset: Other
+Build Command: leave empty
+Output Directory: leave empty
+Install Command: pip install -r requirements.txt
+```
+
+Add this environment variable if you are using a Genderize API key:
+
+```text
+GENDERIZE_API_KEY=<your-genderize-api-key>
+```
+
+After deployment, test:
+
+```text
+https://hng-backend-task0.vercel.app/api/classify?name=james
+```
+
 ## Project Structure
 
 ```text
 app/
+  index.py
   main.py
   routes/classify.py
   schemas/responses.py
@@ -106,4 +140,4 @@ README.md
 ## Submission
 
 - GitHub repository link: `https://github.com/neetoosan/HNG-BACKEND-TASK-0`
-- Public API base URL: `<your-deployed-api-url>`
+- Public API base URL: `https://hng-backend-task0.vercel.app/api/classify?name=james`
