@@ -105,5 +105,5 @@ README.md
 
 ## Submission
 
-- GitHub repository link: `<your-github-repo-url>`
+- GitHub repository link: `https://github.com/neetoosan/HNG-BACKEND-TASK-0`
 - Public API base URL: `<your-deployed-api-url>`
