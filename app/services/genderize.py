@@ -1,6 +1,7 @@
 """Service layer for calling the Genderize API and processing results."""
 
 from datetime import datetime, timezone
+from os import getenv
 
 import httpx
 
@@ -37,11 +38,15 @@ async def classify_name(name: str) -> dict:
         GenderizeAPIError: if the external API is unreachable.
     """
     client = await get_client()
+    params = {"name": name}
+    api_key = getenv("your_api_key_here")
+    if api_key:
+        params["apikey"] = api_key
 
     try:
         response = await client.get(
             "https://api.genderize.io",
-            params={"name": name},
+            params=params,
         )
         response.raise_for_status()
         data = response.json()
