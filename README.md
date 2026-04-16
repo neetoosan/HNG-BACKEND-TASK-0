@@ -1,6 +1,28 @@
-# HNG Stage 0 - Gender Classifier API
+# HNG Stage 0 Gender Classifier API
 
-A FastAPI backend that exposes `GET /api/classify`, calls the Genderize API, and returns a processed gender prediction response.
+FastAPI backend for the HNG Stage 0 API Integration and Data Processing assessment.
+
+The API exposes:
+
+```text
+GET /api/classify?name=<name>
+```
+
+It calls the Genderize API, processes the response, and returns the required assignment response format.
+
+## Features
+
+- `GET /api/classify` endpoint.
+- Validates missing or empty `name` with `400 Bad Request`.
+- Handles repeated `name` query parameters with `422 Unprocessable Entity`.
+- Calls `https://api.genderize.io`.
+- Extracts `gender`, `probability`, and `count`.
+- Renames `count` to `sample_size`.
+- Computes `is_confident` only when `probability >= 0.7` and `sample_size >= 100`.
+- Generates fresh UTC `processed_at` timestamps.
+- Returns all errors as `{ "status": "error", "message": "..." }`.
+- Adds `Access-Control-Allow-Origin: *` to every response.
+- Includes a Vercel entrypoint at `app/index.py`.
 
 ## Setup
 
@@ -12,7 +34,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-For macOS/Linux activation, use:
+For macOS/Linux:
 
 ```bash
 source venv/bin/activate
@@ -24,28 +46,10 @@ source venv/bin/activate
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The API will be available at `http://localhost:8000`.
-
-## Optional Environment Variables
-
-Genderize allows limited free requests without an API key, but hosted platforms can share IP addresses and hit that free limit. If your deployed app returns `Failed to reach gender prediction service`, create a Genderize API key and set this environment variable on your host:
+Test in the browser:
 
 ```text
-GENDERIZE_API_KEY=<your-genderize-api-key>
-```
-
-## Endpoint
-
-`GET /api/classify?name=<name>`
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Name to classify |
-
-## Example Request
-
-```bash
-curl "http://localhost:8000/api/classify?name=james"
+http://localhost:8000/api/classify?name=john
 ```
 
 ## Success Response
@@ -54,12 +58,12 @@ curl "http://localhost:8000/api/classify?name=james"
 {
   "status": "success",
   "data": {
-    "name": "james",
+    "name": "john",
     "gender": "male",
     "probability": 0.99,
-    "sample_size": 1234,
+    "sample_size": 509298,
     "is_confident": true,
-    "processed_at": "2026-04-16T08:00:00Z"
+    "processed_at": "2026-04-16T12:00:00Z"
   }
 }
 ```
@@ -69,28 +73,11 @@ curl "http://localhost:8000/api/classify?name=james"
 ```json
 {
   "status": "error",
-  "message": "<error description>"
+  "message": "Missing or empty 'name' query parameter"
 }
 ```
 
-| Status Code | Condition |
-| --- | --- |
-| `400` | Missing or empty `name` parameter |
-| `400` | No prediction available for the provided name |
-| `422` | Invalid input |
-| `502` | Genderize API is unreachable or returns an invalid response |
-| `500` | Unexpected server error |
-
-## Confidence Logic
-
-`is_confident` is `true` only when both conditions are met:
-
-```text
-probability >= 0.7
-sample_size >= 100
-```
-
-## Run Tests
+## Tests
 
 ```bash
 python -m pytest tests -v
@@ -98,9 +85,9 @@ python -m pytest tests -v
 
 ## Deploy To Vercel
 
-This project includes `app/index.py` as the Vercel FastAPI entrypoint.
+This repository includes `app/index.py`, which Vercel uses as the FastAPI entrypoint.
 
-On Vercel:
+Recommended Vercel settings:
 
 ```text
 Framework Preset: Other
@@ -109,7 +96,7 @@ Output Directory: leave empty
 Install Command: pip install -r requirements.txt
 ```
 
-Add this environment variable if you are using a Genderize API key:
+If you have a Genderize API key, add this environment variable in Vercel:
 
 ```text
 GENDERIZE_API_KEY=<your-genderize-api-key>
@@ -118,26 +105,16 @@ GENDERIZE_API_KEY=<your-genderize-api-key>
 After deployment, test:
 
 ```text
-https://hng-backend-task0.vercel.app/api/classify?name=james
+https://your-vercel-domain.vercel.app/api/classify?name=john
 ```
 
-## Project Structure
+For submission, provide the public base URL only:
 
 ```text
-app/
-  index.py
-  main.py
-  routes/classify.py
-  schemas/responses.py
-  services/genderize.py
-  utils/errors.py
-tests/
-  test_classify.py
-requirements.txt
-README.md
+https://your-vercel-domain.vercel.app
 ```
 
 ## Submission
 
-- GitHub repository link: `https://github.com/neetoosan/HNG-BACKEND-TASK-0`
-- Public API base URL: `https://hng-backend-task0.vercel.app/api/classify?name=james`
+- GitHub repository link: `<your-github-repo-url>`
+- Public API base URL: `<your-public-api-base-url>`

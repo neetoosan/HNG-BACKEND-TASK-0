@@ -1,7 +1,3 @@
-"""Vercel FastAPI entrypoint.
-
-Vercel auto-detects FastAPI apps from app/index.py, while local development
-continues to use app.main:app.
-"""
+"""Vercel entrypoint for the FastAPI application."""
 
 from app.main import app
